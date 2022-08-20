@@ -1,14 +1,27 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DealLoaderService } from './deal-loader.service';
-import { take } from 'rxjs/operators';
-import { BehaviorSubject, EMPTY, forkJoin } from 'rxjs';
+import { take, map, filter } from 'rxjs/operators';
+import {
+  BehaviorSubject,
+  combineLatest,
+  EMPTY,
+  forkJoin,
+  Observable,
+  of,
+  zip,
+} from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import { Deal, DealForm } from '../models';
 
 export interface BaseForms {
   base: FormGroup<DealForm>;
 }
+
+type ExtractGeneric<Type> = Type extends FormGroup<infer X> ? X : never;
+type FormGroupType<T> = {
+  [P in keyof T]: ExtractGeneric<T[P]>;
+};
 
 @Injectable({
   providedIn: 'root',
@@ -18,13 +31,24 @@ export abstract class FormService<T extends BaseForms> {
   private readonly _forms$ = new BehaviorSubject<T | null>(this.forms);
   public readonly forms$ = this._forms$.asObservable();
 
-  constructor(protected readonly dealLoaderService: DealLoaderService) {}
+  constructor(protected readonly dealLoaderService: DealLoaderService) {
+    this.valueChanges().subscribe((result) => result);
+  }
 
+  // public valueChanges(): Observable<FormGroupType<T>> {
   public valueChanges() {
-    console.log(Object.keys(this.forms));
-    return forkJoin([Object.entries(this.forms)]).pipe(
-      tap(console.log)
-    )
+    return this.forms$.pipe(
+      filter(Boolean),
+      forkJoin(forms => Object.assign({}, Object.values(forms).map((k, v) => k.valueChanges)))
+    );
+
+    if (!this.forms) {
+      return EMPTY;
+    }
+
+    console.log(Object.entries(this.forms));
+
+    return EMPTY;
   }
 
   public initializeForm() {
@@ -41,7 +65,11 @@ export abstract class FormService<T extends BaseForms> {
       this.forms = initForm;
 
       if (this.initForm) {
-        this.forms = this.initForm(this.forms);
+        const result = this.initForm(this.forms);
+        this.forms = {
+          ...this.forms,
+          ...result,
+        };
       }
       this._forms$.next(this.forms);
     });
@@ -49,9 +77,9 @@ export abstract class FormService<T extends BaseForms> {
     this.valueChanges().subscribe(this.saveDealUpdate);
   }
 
-  private saveDealUpdate(deal: Readonly<Deal>) {
+  private saveDealUpdate(deal: any) {
     console.log('Deal updated ', deal);
   }
 
-  abstract initForm(baseForms: Readonly<BaseForms>): T | null;
+  abstract initForm(baseForms: Readonly<T>): Omit<T, 'base'> | null;
 }

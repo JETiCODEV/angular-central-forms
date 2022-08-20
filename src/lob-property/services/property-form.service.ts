@@ -25,9 +25,8 @@ export class PropertyFormService extends FormService<PropertyForms> {
     console.log('PropertyFormService');
   }
 
-  initForm(baseForms: Readonly<BaseForms>): PropertyForms {
+  initForm(baseForms: Readonly<PropertyForms>) {
     return {
-      ...baseForms,
       property: new FormGroup<PropertyDealForm>({
         propertyName: new FormControl<string>('Property name'),
       }),
