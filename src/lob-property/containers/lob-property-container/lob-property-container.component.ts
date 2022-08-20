@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { map, Observable } from 'rxjs';
+import { BaseForms, FormService } from 'src/lob-common/services/form.service';
 import { DealLoaderService } from '../../../lob-common/services/deal-loader.service';
-import { Forms, FormService } from '../../../lob-common/services/form.service';
 
 class Guid {
   static newGuid() {
@@ -27,7 +27,7 @@ export class LobPropertyContainerComponent {
 
   constructor(
     private readonly dealLoaderService: DealLoaderService,
-    private readonly formService: FormService<Forms>
+    private readonly formService: FormService<BaseForms>
   ) {
     this.dealLoaderService.loadDeal('test' + Guid.newGuid());
     this.formService.initializeForm();
