@@ -1,7 +1,10 @@
 <ng-container [formGroup]="form | async">
-  <input formControlName="id" />
+  Id:<input formControlName="id" /> <br />
+  Reference: <input formControlName="reference" />
 </ng-container>
 
-{{ form | formValue | async | json }}
+<p>
+  {{ form | formValue | async | json }}
+</p>
 
 <button (click)="reloadDeal()">Reload</button>

@@ -4,7 +4,7 @@ import { DealLoaderService } from './deal-loader.service';
 import { take } from 'rxjs/operators';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { Deal } from '../models';
+import { Deal, DealForm } from '../models';
 
 export interface BaseForms {
   base: FormGroup;
@@ -13,11 +13,11 @@ export interface BaseForms {
 @Injectable({
   providedIn: 'root',
 })
-export class FormService<T extends BaseForms> {
+export abstract class FormService<T extends BaseForms> {
   public forms: Readonly<T> | null = null;
   public readonly form$ = new BehaviorSubject<T | null>(this.forms);
 
-  constructor(private readonly dealLoaderService: DealLoaderService) {}
+  constructor(protected readonly dealLoaderService: DealLoaderService) {}
 
   public valueChanges() {
     return this.form$.pipe(
@@ -27,12 +27,15 @@ export class FormService<T extends BaseForms> {
 
   public initializeForm() {
     this.dealLoaderService.deal.pipe(take(1)).subscribe((deal) => {
-      const form = new FormGroup({
+      const form = new FormGroup<DealForm>({
         id: new FormControl(deal.id),
+        reference: new FormControl(deal.reference),
       });
-      this.forms = {
+      const initForm = (this.initForm() ?? {
         base: form,
-      } as Readonly<T>;
+      }) as Readonly<T>;
+
+      this.forms = initForm;
       this.form$.next(this.forms);
     });
 
@@ -42,4 +45,6 @@ export class FormService<T extends BaseForms> {
   private saveDealUpdate(deal: Readonly<Deal>) {
     console.log('Deal updated ', deal);
   }
+
+  abstract initForm(baseForms: Readonly<BaseForms>): T | null;
 }

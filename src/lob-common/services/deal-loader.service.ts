@@ -11,7 +11,8 @@ export class DealLoaderService {
   public loadDeal(id: string) {
     console.log(id);
     this.deal.next({
-      id: id,
+      id: 'id - ' + id,
+      reference: 'reference - ' + id,
     });
   }
 }
