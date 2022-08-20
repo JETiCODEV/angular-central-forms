@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DealLoaderService } from './deal-loader.service';
-import { take, map, filter } from 'rxjs/operators';
+import { take, map, filter, share } from 'rxjs/operators';
 import {
   BehaviorSubject,
   combineLatest,
@@ -30,6 +30,17 @@ export abstract class FormService<T extends BaseForms> {
   public forms: Readonly<T> | null = null;
   private readonly _forms$ = new BehaviorSubject<T | null>(this.forms);
   public readonly forms$ = this._forms$.asObservable();
+  private readonly formChanges = this.forms$.pipe(
+    filter(Boolean),
+    map((forms) =>
+      Object.assign(
+        {},
+        Object.values(forms).map((k, v) => k)
+      )
+    ),
+    switchMap((result) => result[0].valueChanges),
+    share()
+  );
 
   constructor(protected readonly dealLoaderService: DealLoaderService) {
     this.valueChanges().subscribe((result) => result);
@@ -37,18 +48,7 @@ export abstract class FormService<T extends BaseForms> {
 
   // public valueChanges(): Observable<FormGroupType<T>> {
   public valueChanges() {
-    return this.forms$.pipe(
-      filter(Boolean),
-      forkJoin(forms => Object.assign({}, Object.values(forms).map((k, v) => k.valueChanges)))
-    );
-
-    if (!this.forms) {
-      return EMPTY;
-    }
-
-    console.log(Object.entries(this.forms));
-
-    return EMPTY;
+    return this.formChanges;
   }
 
   public initializeForm() {

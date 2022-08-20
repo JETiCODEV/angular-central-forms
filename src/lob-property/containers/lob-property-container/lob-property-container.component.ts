@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { map, Observable } from 'rxjs';
-import  { tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import {
   BaseForms,
   FormService,
@@ -41,7 +41,7 @@ export class LobPropertyContainerComponent {
     this.formService.initializeForm();
     this.forms = this.formService.forms$;
 
-    this.formService.valueChanges();
+    this.formService.valueChanges().subscribe(result => console.log('Container valueChanges', result));
   }
 
   public reloadDeal() {
