@@ -31,7 +31,7 @@ export abstract class FormService<T extends BaseForms> {
         id: new FormControl(deal.id),
         reference: new FormControl(deal.reference),
       });
-      const initForm = (this.initForm() ?? {
+      const initForm = (this.initForm(this.forms) ?? {
         base: form,
       }) as Readonly<T>;
 
