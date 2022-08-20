@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { map, Observable } from 'rxjs';
-import { BaseForms, FormService } from 'src/lob-common/services/form.service';
+import {
+  BaseForms,
+  FormService,
+} from '../../../lob-common/services/form.service';
 import { DealLoaderService } from '../../../lob-common/services/deal-loader.service';
 
 class Guid {
