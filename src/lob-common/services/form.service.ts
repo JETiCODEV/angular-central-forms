@@ -63,6 +63,7 @@ export abstract class FormService<T extends BaseForms> {
   }
 
   public initializeForm() {
+    this.emitCount = 0;
     this.dealLoaderService.deal.pipe(take(1)).subscribe((deal) => {
       console.log('Deal loaded');
 
