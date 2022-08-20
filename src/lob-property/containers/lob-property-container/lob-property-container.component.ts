@@ -6,6 +6,10 @@ import {
   FormService,
 } from '../../../lob-common/services/form.service';
 import { DealLoaderService } from '../../../lob-common/services/deal-loader.service';
+import {
+  PropertyForms,
+  PropertyFormService,
+} from '../../services/property-form.service';
 
 class Guid {
   static newGuid() {
@@ -26,15 +30,17 @@ class Guid {
   styleUrls: ['./lob-property-container.component.css'],
 })
 export class LobPropertyContainerComponent {
-  public readonly form: Observable<FormGroup>;
+  public readonly forms: Observable<PropertyForms>;
 
   constructor(
     private readonly dealLoaderService: DealLoaderService,
-    private readonly formService: FormService<BaseForms>
+    private readonly formService: PropertyFormService
   ) {
     this.dealLoaderService.loadDeal('test' + Guid.newGuid());
     this.formService.initializeForm();
-    this.form = this.formService.form$.pipe(map((forms) => forms.base));
+    this.forms = this.formService.forms$;
+
+    this.formService.valueChanges().subscribe(console.log);
   }
 
   public reloadDeal() {

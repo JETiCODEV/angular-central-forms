@@ -1,10 +1,14 @@
-<ng-container [formGroup]="form | async">
-  Id:<input formControlName="id" /> <br />
-  Reference: <input formControlName="reference" />
+<ng-container *ngIf="forms | async; let forms">
+  <ng-container [formGroup]="forms.base">
+    Id:<input formControlName="id" /> <br />
+    Reference: <input formControlName="reference" /> <br />
+  </ng-container>
+
+  <ng-container [formGroup]="forms.property">
+    Property Name: <input formControlName="propertyName" />
+  </ng-container>
+  <p>{{ forms.base.value | json }}</p>
+  <p>{{ forms.property.value | json }}</p>
+
+  <button (click)="reloadDeal()">Reload</button>
 </ng-container>
-
-<p>
-  {{ form | formValue | async | json }}
-</p>
-
-<button (click)="reloadDeal()">Reload</button>

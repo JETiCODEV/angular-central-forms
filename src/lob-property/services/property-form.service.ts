@@ -16,7 +16,9 @@ export interface PropertyForms extends BaseForms {
   property: FormGroup<PropertyDealForm>;
 }
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class PropertyFormService extends FormService<PropertyForms> {
   constructor(dealLoaderService: DealLoaderService) {
     super(dealLoaderService);
@@ -24,11 +26,10 @@ export class PropertyFormService extends FormService<PropertyForms> {
   }
 
   initForm(baseForms: Readonly<BaseForms>): PropertyForms {
-    console.log('PropertyFormService.initForm');
     return {
       ...baseForms,
       property: new FormGroup<PropertyDealForm>({
-        propertyName: new FormControl<string>('prop deal'),
+        propertyName: new FormControl<string>('Property name'),
       }),
     };
   }
