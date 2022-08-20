@@ -6,14 +6,14 @@ import { BehaviorSubject, EMPTY } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Deal } from '../models';
 
-export interface Forms {
+export interface BaseForms {
   base: FormGroup;
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class FormService<T extends Forms> {
+export class FormService<T extends BaseForms> {
   public forms: Readonly<T> | null = null;
   public readonly form$ = new BehaviorSubject<T | null>(this.forms);
 
