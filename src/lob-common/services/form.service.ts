@@ -14,13 +14,15 @@ export interface Forms {
   providedIn: 'root',
 })
 export class FormService<T extends Forms> {
-  public form: FormGroup | null = null;
-  public readonly form$ = new BehaviorSubject<FormGroup | null>(this.form);
+  public forms: Readonly<T> | null = null;
+  public readonly form$ = new BehaviorSubject<T | null>(this.forms);
 
   constructor(private readonly dealLoaderService: DealLoaderService) {}
 
   public valueChanges() {
-    return this.form$.pipe(switchMap((form) => form.valueChanges ?? EMPTY));
+    return this.form$.pipe(
+      switchMap((form) => form.base.valueChanges ?? EMPTY)
+    );
   }
 
   public initializeForm() {
@@ -28,8 +30,10 @@ export class FormService<T extends Forms> {
       const form = new FormGroup({
         id: new FormControl(deal.id),
       });
-      this.form = form;
-      this.form$.next(form);
+      this.forms = {
+        base: form,
+      } as Readonly<T>;
+      this.form$.next(this.forms);
     });
 
     this.valueChanges().subscribe(this.saveDealUpdate);
