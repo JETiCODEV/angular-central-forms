@@ -41,7 +41,9 @@ export class LobPropertyContainerComponent {
     this.formService.initializeForm();
     this.forms = this.formService.forms$;
 
-    this.formService.valueChanges().subscribe(result => console.log('Container valueChanges', result));
+    this.formService.formChanges.subscribe((result) =>
+      console.log('Container valueChanges', result.base.id)
+    );
   }
 
   public reloadDeal() {

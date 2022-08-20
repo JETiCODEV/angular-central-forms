@@ -14,6 +14,7 @@ export interface PropertyDealForm {
 
 export interface PropertyForms extends BaseForms {
   property: FormGroup<PropertyDealForm>;
+  other: FormControl<string>;
 }
 
 @Injectable({
@@ -30,6 +31,7 @@ export class PropertyFormService extends FormService<PropertyForms> {
       property: new FormGroup<PropertyDealForm>({
         propertyName: new FormControl<string>('Property name'),
       }),
+      other: new FormControl(null)
     };
   }
 }

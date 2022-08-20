@@ -2,17 +2,9 @@ import { Injectable } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DealLoaderService } from './deal-loader.service';
 import { take, map, filter, share } from 'rxjs/operators';
-import {
-  BehaviorSubject,
-  combineLatest,
-  EMPTY,
-  forkJoin,
-  Observable,
-  of,
-  zip,
-} from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators';
-import { Deal, DealForm } from '../models';
+import { BehaviorSubject, Observable, merge } from 'rxjs';
+import { switchMap, startWith, skip, tap } from 'rxjs/operators';
+import { DealForm } from '../models';
 
 export interface BaseForms {
   base: FormGroup<DealForm>;
@@ -29,26 +21,45 @@ type FormGroupType<T> = {
 export abstract class FormService<T extends BaseForms> {
   public forms: Readonly<T> | null = null;
   private readonly _forms$ = new BehaviorSubject<T | null>(this.forms);
+  private emitCount = 0;
   public readonly forms$ = this._forms$.asObservable();
-  private readonly formChanges = this.forms$.pipe(
+  public readonly formChanges: Observable<FormGroupType<T>> = this.forms$.pipe(
     filter(Boolean),
-    map((forms) =>
-      Object.assign(
-        {},
-        Object.values(forms).map((k, v) => k)
-      )
-    ),
-    switchMap((result) => result[0].valueChanges),
+    switchMap((forms) => {
+      const valueChanges = Object.entries(forms);
+      let stream = merge(
+        ...valueChanges.map(([, value]) => value.valueChanges)
+      );
+
+      console.log(this.emitCount);
+      if (this.emitCount) {
+        stream = stream.pipe(startWith(null));
+      }
+
+      stream = stream.pipe(
+        tap(() => (this.emitCount = 1)),
+        map(() => {
+          const output = {};
+          Object.assign(
+            {},
+            valueChanges.map(
+              ([key, value]) => (output[key] = value.getRawValue())
+            )
+          );
+          return output as FormGroupType<T>;
+        })
+      );
+
+      return stream as Observable<FormGroupType<T>>;
+    }),
     share()
   );
 
   constructor(protected readonly dealLoaderService: DealLoaderService) {
-    this.valueChanges().subscribe((result) => result);
-  }
-
-  // public valueChanges(): Observable<FormGroupType<T>> {
-  public valueChanges() {
-    return this.formChanges;
+    this._forms$.pipe(
+      switchMap(() => this.formChanges)
+    )
+    .subscribe(this.saveDealUpdate);
   }
 
   public initializeForm() {
@@ -73,8 +84,6 @@ export abstract class FormService<T extends BaseForms> {
       }
       this._forms$.next(this.forms);
     });
-
-    this.valueChanges().subscribe(this.saveDealUpdate);
   }
 
   private saveDealUpdate(deal: any) {

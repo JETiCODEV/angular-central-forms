@@ -5,8 +5,11 @@
   </ng-container>
 
   <ng-container [formGroup]="forms.property">
-    Property Name: <input formControlName="propertyName" />
-  </ng-container>
+    Property Name: <input formControlName="propertyName" /> </ng-container
+  ><br />
+
+  <input [formControl]="forms.other" />
+
   <p>{{ forms.base.value | json }}</p>
   <p>{{ forms.property.value | json }}</p>
 
