@@ -31,11 +31,6 @@ export abstract class FormService<T extends BaseForms> {
         ...valueChanges.map(([, value]) => value.valueChanges)
       );
 
-      console.log(this.emitCount);
-      if (this.emitCount) {
-        stream = stream.pipe(startWith(null));
-      }
-
       stream = stream.pipe(
         tap(() => (this.emitCount = 1)),
         map(() => {
@@ -56,14 +51,12 @@ export abstract class FormService<T extends BaseForms> {
   );
 
   constructor(protected readonly dealLoaderService: DealLoaderService) {
-    this._forms$.pipe(
-      switchMap(() => this.formChanges)
-    )
-    .subscribe(this.saveDealUpdate);
+    this._forms$
+      .pipe(switchMap(() => this.formChanges))
+      .subscribe(this.saveDealUpdate);
   }
 
   public initializeForm() {
-    this.emitCount = 0;
     this.dealLoaderService.deal.pipe(take(1)).subscribe((deal) => {
       console.log('Deal loaded');
 

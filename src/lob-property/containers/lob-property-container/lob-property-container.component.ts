@@ -1,6 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { map, Observable } from 'rxjs';
+import {
+  BehaviorSubject,
+  map,
+  Observable,
+  Subject,
+  take,
+  takeUntil,
+} from 'rxjs';
 import { tap } from 'rxjs/operators';
 import {
   BaseForms,
@@ -30,8 +37,9 @@ class Guid {
   templateUrl: './lob-property-container.component.html',
   styleUrls: ['./lob-property-container.component.css'],
 })
-export class LobPropertyContainerComponent {
+export class LobPropertyContainerComponent implements OnDestroy {
   public readonly forms: Observable<PropertyForms>;
+  private readonly destroy = new BehaviorSubject<void>(null);
 
   constructor(
     private readonly dealLoaderService: DealLoaderService,
@@ -41,13 +49,20 @@ export class LobPropertyContainerComponent {
     this.formService.initializeForm();
     this.forms = this.formService.forms$;
 
-    this.formService.formChanges.subscribe((result) =>
-      console.log('Container valueChanges', result.base.id)
-    );
+    this.formService.formChanges
+      .pipe(takeUntil(this.destroy))
+      .subscribe((result) =>
+        console.log('Container valueChanges', result.base.id)
+      );
   }
 
   public reloadDeal() {
     this.dealLoaderService.loadDeal(Guid.newGuid());
     this.formService.initializeForm();
+  }
+
+  public ngOnDestroy() {
+    this.destroy.next();
+    this.destroy.complete();
   }
 }
