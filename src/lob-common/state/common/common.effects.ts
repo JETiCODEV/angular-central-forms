@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
-import { Store } from "@ngrx/store";
-import { test } from "./common.actions";
-import { tap } from 'rxjs/operators';
+import { createFeature, Store } from "@ngrx/store";
+import { tap, map } from "rxjs/operators";
+import * as commonActions from "../common/common.actions";
 
 @Injectable({
   providedIn: "root",
@@ -15,12 +15,17 @@ export class CommonEffects {
     console.log("CommonEffects");
   }
 
-  test = createEffect(
-    () =>
-      this.actions.pipe(
-        ofType(test),
-        tap(() => alert("test effect handled"))
-      ),
-    { dispatch: false }
+  loadDeal = createEffect(() =>
+    this.actions.pipe(
+      ofType(commonActions.dealActions.deal),
+      map(() =>
+        commonActions.dealActions.dealSuccess({
+          deal: {
+            id: "id",
+            reference: "reference",
+          },
+        })
+      )
+    )
   );
 }

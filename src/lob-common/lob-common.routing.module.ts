@@ -23,8 +23,7 @@ import { DealLoadGuard } from './guards/deal-load.guard';
           ),
       },
     ]),
-  ],
-  declarations: [],
+  ]
 })
 export class LobCommonRoutingModule {
   constructor() {

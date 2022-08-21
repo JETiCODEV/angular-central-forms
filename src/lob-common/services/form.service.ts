@@ -1,10 +1,13 @@
-import { Injectable } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { DealLoaderService } from './deal-loader.service';
-import { take, map, filter, share } from 'rxjs/operators';
-import { BehaviorSubject, Observable, merge } from 'rxjs';
-import { switchMap, startWith, skip, tap } from 'rxjs/operators';
-import { DealForm } from '../models';
+import { Injectable } from "@angular/core";
+import { FormControl, FormGroup } from "@angular/forms";
+import { DealLoaderService } from "./deal-loader.service";
+import { take, map, filter, share, debounceTime } from "rxjs/operators";
+import { BehaviorSubject, Observable, merge } from "rxjs";
+import { switchMap, startWith, skip, tap } from "rxjs/operators";
+import { Deal, DealForm } from "../models";
+import { CommonState } from "../state/common/common.reducer";
+import { Store } from "@ngrx/store";
+import * as commonActions from "../state/common/common.actions";
 
 export interface BaseForms {
   base: FormGroup<DealForm>;
@@ -16,7 +19,7 @@ type FormGroupType<T> = {
 };
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export abstract class FormService<T extends BaseForms> {
   public forms: Readonly<T> | null = null;
@@ -54,15 +57,26 @@ export abstract class FormService<T extends BaseForms> {
     share()
   );
 
-  constructor(protected readonly dealLoaderService: DealLoaderService) {
+  constructor(
+    protected readonly dealLoaderService: DealLoaderService,
+    private readonly store: Store<CommonState>
+  ) {
     this._forms$
-      .pipe(switchMap(() => this.formChanges))
-      .subscribe(this.saveDealUpdate);
+      .pipe(
+        switchMap(() => this.formChanges),
+        debounceTime(200)
+      )
+      .subscribe((result) =>
+        this.saveDealUpdate({
+          id: result.base.id.value,
+          reference: result.base.reference.value,
+        })
+      );
   }
 
   public initializeForm() {
     this.dealLoaderService.deal.pipe(take(1)).subscribe((deal) => {
-      console.log('Deal loaded');
+      console.log("Deal loaded");
 
       const form = new FormGroup<DealForm>({
         id: new FormControl(deal.id),
@@ -84,9 +98,10 @@ export abstract class FormService<T extends BaseForms> {
     });
   }
 
-  private saveDealUpdate(deal: any) {
-    console.log('Deal updated ', deal);
+  private saveDealUpdate(deal: Readonly<Deal>) {
+    console.log("Deal updated ", deal);
+    this.store.dispatch(commonActions.dealActions.autosaveTrigger());
   }
 
-  abstract initForm(baseForms: Readonly<T>): Omit<T, 'base'> | null;
+  abstract initForm(baseForms: Readonly<T>): Omit<T, "base"> | null;
 }

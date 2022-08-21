@@ -9,8 +9,8 @@ import {
   PropertyForms,
   PropertyFormService,
 } from '../../services/property-form.service';
-import { HeaderContainerComponent } from '../../../lob-common/containers/header-container/header-container.component';
-import { DynamicComponentService } from '../../../lob-common/services/dynamic-component.service';
+import { DynamicComponentService } from '../../../lob-shared/services/dynamic-component.service';
+import { HeaderContainerComponent } from 'src/lob-shared/containers/header-container/header-container.component';
 
 class Guid {
   static newGuid() {
