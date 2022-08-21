@@ -89,7 +89,7 @@ export abstract class FormService<T extends BaseForms, TDeal extends Deal> {
 
   constructor(
     protected readonly dealLoaderService: DealLoaderService,
-    private readonly store: Store<CommonState>
+    protected readonly store: Store<CommonState>
   ) {
     this._forms$
       .pipe(
@@ -127,26 +127,26 @@ export abstract class FormService<T extends BaseForms, TDeal extends Deal> {
 
   public diff() {
     // TODO: We need to integrate this with the LoB specific forms too !!!!
-    this.store
-      .select((x) => x.common.deal)
-      .pipe(
-        filter(deal => !!deal),
-        switchMap(deal => this.formChanges.pipe(map(() => deal)))
-      )
-      .subscribe((deal) => {
-        const toDeal: FormGroupRawValue<BaseForms> = {
-          base: {
-            id: deal.id,
-            reference: deal.reference,
-          },
-        };
+    // this.store
+    //   .select((x) => x.common.deal)
+    //   .pipe(
+    //     filter(deal => !!deal),
+    //     switchMap(deal => this.formChanges.pipe(map(() => deal)))
+    //   )
+    //   .subscribe((deal) => {
+    //     const toDeal: FormGroupRawValue<BaseForms> = {
+    //       base: {
+    //         id: deal.id,
+    //         reference: deal.reference,
+    //       },
+    //     };
 
-        console.log("Differ",
-          deepDiffMapper.map(toDeal, {
-            base: this.forms?.base?.value,
-          })
-        );
-      });
+    //     console.log("Differ",
+    //       deepDiffMapper.map(toDeal, {
+    //         base: this.forms?.base?.value,
+    //       })
+    //     );
+    //   });
   }
 
   private saveDealUpdate() {
