@@ -13,7 +13,7 @@ import { DealLoadGuard } from '../lob-common/guards/deal-load.guard';
     ReactiveFormsModule,
     RouterModule.forChild([
       {
-        path: '',
+        path: 'submission',
         component: LobPropertyContainerComponent,
       },
     ]),

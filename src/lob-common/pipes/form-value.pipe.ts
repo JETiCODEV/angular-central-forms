@@ -9,6 +9,10 @@ import {
 } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
+//
+// This pipe would mainly be used for debugging form values in a template
+//
+
 @Pipe({
   name: 'formValue',
 })

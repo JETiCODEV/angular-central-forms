@@ -60,6 +60,8 @@ export class LobPropertyContainerComponent implements OnDestroy {
         console.log('Container valueChanges', result.base.id)
       );
 
+    // Here we are currently loading the components that we dynamically want to render on the view > but should be handled by the `dynamic-component.service`
+    // Also need to double check that this doesn't mess up the lazy loading of the modules
     // Dynamically build up the components for this view
     [PerilsCoveredComponent, HeaderContainerComponent].forEach((component) =>
       this.viewContainerRef.createComponent(component)
