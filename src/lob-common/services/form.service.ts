@@ -1,4 +1,9 @@
-import { FormControl, FormGroup } from "@angular/forms";
+import {
+  AbstractControl,
+  FormArray,
+  FormControl,
+  FormGroup,
+} from "@angular/forms";
 import { Store } from "@ngrx/store";
 import { BehaviorSubject, merge, Observable } from "rxjs";
 import {
@@ -18,10 +23,40 @@ export interface BaseForms {
   base: FormGroup<DealForm>;
 }
 
-type ExtractGeneric<Type> = Type extends FormGroup<infer X> ? X : never;
-type FormGroupType<T> = {
-  [P in keyof T]: ExtractGeneric<T[P]>;
-};
+declare type IsAny<T, Y, N> = 0 extends 1 & T ? Y : N;
+export declare type TypedOrUntyped<T, Typed, Untyped> = IsAny<
+  T,
+  Untyped,
+  Typed
+>;
+export declare type RawValue<T extends AbstractControl | undefined> =
+  T extends AbstractControl<any, any>
+    ? T["setValue"] extends (v: infer R) => void
+      ? R
+      : never
+    : never;
+export declare type FormGroupRawValue<
+  T extends {
+    [K in keyof T]?: AbstractControl<any>;
+  }
+> = TypedOrUntyped<
+  T,
+  {
+    [K in keyof T]: RawValue<T[K]>;
+  },
+  {
+    [key: string]: any;
+  }
+>;
+
+// type ExtractGeneric<Type> = Type extends
+//   | FormGroup<infer X>
+//   | FormControl<infer X>
+//   ? X
+//   : never;
+// export type FormGroupType<T> = {
+//   [P in keyof T]: ExtractGeneric<T[P]>;
+// };
 
 //
 // FormService to manage form initialization the same way for each LoB
@@ -32,31 +67,32 @@ export abstract class FormService<T extends BaseForms, TDeal extends Deal> {
   public forms: Readonly<T> | null = null;
   private readonly _forms$ = new BehaviorSubject<T | null>(this.forms);
   public readonly forms$ = this._forms$.asObservable();
-  public readonly formChanges: Observable<FormGroupType<T>> = this.forms$.pipe(
-    filter(Boolean),
-    switchMap((forms) => {
-      const valueChanges = Object.entries(forms);
-      let stream = merge(
-        ...valueChanges.map(([, value]) => value.valueChanges)
-      );
+  public readonly formChanges: Observable<FormGroupRawValue<T>> =
+    this.forms$.pipe(
+      filter(Boolean),
+      switchMap((forms) => {
+        const valueChanges = Object.entries(forms);
+        let stream = merge(
+          ...valueChanges.map(([, value]) => value.valueChanges)
+        );
 
-      stream = stream.pipe(
-        map(() => {
-          const output = {};
-          Object.assign(
-            {},
-            valueChanges.map(
-              ([key, value]) => (output[key] = value.getRawValue())
-            )
-          );
-          return output as FormGroupType<T>;
-        })
-      );
+        stream = stream.pipe(
+          map(() => {
+            const output = {};
+            Object.assign(
+              {},
+              valueChanges.map(
+                ([key, value]) => (output[key] = value.getRawValue())
+              )
+            );
+            return output as FormGroupRawValue<T>;
+          })
+        );
 
-      return stream as Observable<FormGroupType<T>>;
-    }),
-    share()
-  );
+        return stream as Observable<FormGroupRawValue<T>>;
+      }),
+      share()
+    );
 
   constructor(
     protected readonly dealLoaderService: DealLoaderService,
@@ -93,6 +129,8 @@ export abstract class FormService<T extends BaseForms, TDeal extends Deal> {
       this._forms$.next(this.forms);
     });
   }
+
+  public diff() {}
 
   private saveDealUpdate() {
     const materializedDeal = this.materializeDeal();
