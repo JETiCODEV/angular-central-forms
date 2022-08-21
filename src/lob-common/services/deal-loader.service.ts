@@ -9,7 +9,7 @@ export class DealLoaderService {
   public readonly deal = new BehaviorSubject<Deal | null>(null);
 
   public loadDeal(id: string) {
-    console.log(id);
+    console.log('Loading deal', id);
     this.deal.next({
       id: 'id - ' + id,
       reference: 'reference - ' + id,

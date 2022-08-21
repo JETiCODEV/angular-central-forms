@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ViewContainerRef } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import {
   BehaviorSubject,
@@ -18,6 +18,9 @@ import {
   PropertyForms,
   PropertyFormService,
 } from '../../services/property-form.service';
+import { PerilsCoveredComponent } from '../../components/perils-covered/perils-covered.component';
+import { HeaderContainerComponent } from '../../../lob-common/containers/header-container/header-container.component';
+import { DynamicComponentService } from '../../../lob-common/services/dynamic-component.service';
 
 class Guid {
   static newGuid() {
@@ -43,9 +46,11 @@ export class LobPropertyContainerComponent implements OnDestroy {
 
   constructor(
     private readonly dealLoaderService: DealLoaderService,
-    private readonly formService: PropertyFormService
+    private readonly formService: PropertyFormService,
+    private readonly viewContainerRef: ViewContainerRef,
+    private readonly dynamicComponentService: DynamicComponentService
   ) {
-    this.dealLoaderService.loadDeal('test' + Guid.newGuid());
+    // this.dealLoaderService.loadDeal('test' + Guid.newGuid());
     this.formService.initializeForm();
     this.forms = this.formService.forms$;
 
@@ -54,6 +59,11 @@ export class LobPropertyContainerComponent implements OnDestroy {
       .subscribe((result) =>
         console.log('Container valueChanges', result.base.id)
       );
+
+    // Dynamically build up the components for this view
+    [PerilsCoveredComponent, HeaderContainerComponent].forEach((component) =>
+      this.viewContainerRef.createComponent(component)
+    );
   }
 
   public reloadDeal() {

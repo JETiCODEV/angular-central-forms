@@ -4,6 +4,7 @@ import { LobPropertyModule } from './lob-property.module';
 import { RouterModule } from '@angular/router';
 import { LobPropertyContainerComponent } from './containers/lob-property-container/lob-property-container.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { DealLoadGuard } from '../lob-common/guards/deal-load.guard';
 
 @NgModule({
   imports: [
@@ -19,4 +20,8 @@ import { ReactiveFormsModule } from '@angular/forms';
   ],
   declarations: [],
 })
-export class LobPropertyRoutingModule {}
+export class LobPropertyRoutingModule {
+  constructor() {
+    console.log('LobPropertyRoutingModule');
+  }
+}
