@@ -11,7 +11,7 @@ import { DealLoadGuard } from './guards/deal-load.guard';
     LobCommonModule,
     RouterModule.forChild([
       {
-        path: '',
+        path: 'test',
         component: TestContainerComponent,
       },
       {
