@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
 import { createFeature, Store } from "@ngrx/store";
 import { tap, map } from "rxjs/operators";
+import { PropertyDeal } from "src/lob-common/models";
 import * as commonActions from "../common/common.actions";
 
 @Injectable({
@@ -23,7 +24,9 @@ export class CommonEffects {
           deal: {
             id: "id",
             reference: "reference",
-          },
+            propertyName: "Property name",
+            perilsCovered: ["flood", "eq"],
+          } as PropertyDeal,
         })
       )
     )

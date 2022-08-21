@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { FormArray, FormControl, FormGroup, Validators } from "@angular/forms";
 import { Deal, DealForm, PropertyDeal } from "../../lob-common/models";
 import { BaseForms, FormService } from "../../lob-common/services/form.service";
 import { DealLoaderService } from "../../lob-common/services/deal-loader.service";
@@ -18,6 +18,7 @@ export interface PropertyDealForm {
 export interface PropertyForms extends BaseForms {
   property: FormGroup<PropertyDealForm>;
   other: FormControl<string>;
+  perilsCovered: FormArray<FormControl<string>>;
 }
 
 @Injectable({
@@ -32,12 +33,23 @@ export class PropertyFormService extends FormService<
     console.log("PropertyFormService");
   }
 
-  initForm(baseForms: Readonly<PropertyForms>) {
+  public togglePeril(peril: string) {
+    const currentPerils = this.forms.perilsCovered;
+    const hasPeril = currentPerils.value.findIndex((x) => x === peril);
+    if (hasPeril !== -1) {
+      this.forms.perilsCovered.removeAt(hasPeril);
+    }
+  }
+
+  initForm(baseForms: Readonly<PropertyForms>, deal: Readonly<PropertyDeal>) {
     return {
       property: new FormGroup<PropertyDealForm>({
         propertyName: new FormControl<string>(null, Validators.required),
       }),
       other: new FormControl(null),
+      perilsCovered: new FormArray<FormControl<string>>(
+        deal.perilsCovered.map((peril) => new FormControl<string>(peril))
+      ),
     };
   }
 
@@ -45,6 +57,7 @@ export class PropertyFormService extends FormService<
     return {
       ...materializeBaseForm(this.forms),
       propertyName: this.forms.property.value.propertyName,
+      perilsCovered: this.forms.perilsCovered.value,
     };
   }
 }

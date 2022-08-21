@@ -85,7 +85,7 @@ export abstract class FormService<T extends BaseForms, TDeal extends Deal> {
       this.forms = initForm;
 
       if (this.initForm) {
-        const result = this.initForm(this.forms);
+        const result = this.initForm(this.forms, deal as Readonly<TDeal>);
         this.forms = {
           ...this.forms,
           ...result,
@@ -106,5 +106,8 @@ export abstract class FormService<T extends BaseForms, TDeal extends Deal> {
   }
 
   abstract materializeDeal(): Readonly<TDeal>;
-  abstract initForm(baseForms: Readonly<T>): Omit<T, "base"> | null;
+  abstract initForm(
+    baseForms: Readonly<T>,
+    deal: Readonly<TDeal>
+  ): Omit<T, "base"> | null;
 }
