@@ -1,5 +1,4 @@
 import {
-  createAction,
   createActionGroup,
   props,
   emptyProps,
@@ -12,6 +11,6 @@ export const dealActions = createActionGroup({
     Deal: props<{ dealId: string }>(),
     "Deal Success": props<{ deal: Readonly<Deal> }>(),
     "Deal Fail": emptyProps(),
-    "Autosave trigger": emptyProps()
+    "Autosave trigger": props<{ deal: Readonly<Deal> }>(),
   },
 });

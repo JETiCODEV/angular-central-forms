@@ -5,6 +5,10 @@ export interface Deal {
   readonly reference: string;
 }
 
+export interface PropertyDeal extends Deal {
+  readonly propertyName: string;
+}
+
 export interface DealForm {
   readonly id: FormControl<string>;
   readonly reference: FormControl<string>;

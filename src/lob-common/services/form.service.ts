@@ -18,10 +18,12 @@ type FormGroupType<T> = {
   [P in keyof T]: ExtractGeneric<T[P]>;
 };
 
-@Injectable({
-  providedIn: "root",
-})
-export abstract class FormService<T extends BaseForms> {
+//
+// FormService to manage form initialization the same way for each LoB
+// **NOTE** We should NOT create an instance of this service since it's abstract.
+//
+
+export abstract class FormService<T extends BaseForms, TDeal extends Deal> {
   public forms: Readonly<T> | null = null;
   private readonly _forms$ = new BehaviorSubject<T | null>(this.forms);
   public readonly forms$ = this._forms$.asObservable();
@@ -66,12 +68,7 @@ export abstract class FormService<T extends BaseForms> {
         switchMap(() => this.formChanges),
         debounceTime(200)
       )
-      .subscribe((result) =>
-        this.saveDealUpdate({
-          id: result.base.id.value,
-          reference: result.base.reference.value,
-        })
-      );
+      .subscribe(() => this.saveDealUpdate());
   }
 
   public initializeForm() {
@@ -98,10 +95,16 @@ export abstract class FormService<T extends BaseForms> {
     });
   }
 
-  private saveDealUpdate(deal: Readonly<Deal>) {
-    console.log("Deal updated ", deal);
-    this.store.dispatch(commonActions.dealActions.autosaveTrigger());
+  private saveDealUpdate() {
+    const materializedDeal = this.materializeDeal();
+    console.log("materialized deal", materializedDeal);
+    this.store.dispatch(
+      commonActions.dealActions.autosaveTrigger({
+        deal: materializedDeal,
+      })
+    );
   }
 
+  abstract materializeDeal(): Readonly<TDeal>;
   abstract initForm(baseForms: Readonly<T>): Omit<T, "base"> | null;
 }

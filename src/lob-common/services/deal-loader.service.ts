@@ -5,6 +5,10 @@ import * as commonActions from "../state/common/common.actions";
 import { CommonState } from "../state/common/common.reducer";
 import { selectCommonState } from "../state/common/common.reducer";
 
+//
+// We can probably get rid of this service because it can be fully implemented using NGRX (dispatch action, handle loading by an effect)
+// 
+
 @Injectable({
   providedIn: "root",
 })
