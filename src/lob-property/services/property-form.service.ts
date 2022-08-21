@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Deal, DealForm } from '../../lob-common/models';
 import { BaseForms, FormService } from '../../lob-common/services/form.service';
 import { DealLoaderService } from '../../lob-common/services/deal-loader.service';
@@ -29,9 +29,12 @@ export class PropertyFormService extends FormService<PropertyForms> {
   initForm(baseForms: Readonly<PropertyForms>) {
     return {
       property: new FormGroup<PropertyDealForm>({
-        propertyName: new FormControl<string>('Property name'),
+        propertyName: new FormControl<string>(
+          null,
+          Validators.required
+        ),
       }),
-      other: new FormControl(null)
+      other: new FormControl(null),
     };
   }
 }

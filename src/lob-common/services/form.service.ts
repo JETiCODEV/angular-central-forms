@@ -21,7 +21,6 @@ type FormGroupType<T> = {
 export abstract class FormService<T extends BaseForms> {
   public forms: Readonly<T> | null = null;
   private readonly _forms$ = new BehaviorSubject<T | null>(this.forms);
-  private emitCount = 0;
   public readonly forms$ = this._forms$.asObservable();
   public readonly formChanges: Observable<FormGroupType<T>> = this.forms$.pipe(
     filter(Boolean),
@@ -31,8 +30,13 @@ export abstract class FormService<T extends BaseForms> {
         ...valueChanges.map(([, value]) => value.valueChanges)
       );
 
+      // const isAllValid = () =>
+      //   valueChanges
+      //     .map(([key, value]) => value.valid)
+      //     .reduce((previous, current) => previous && current, true);
+
       stream = stream.pipe(
-        tap(() => (this.emitCount = 1)),
+        // filter(() => isAllValid()),
         map(() => {
           const output = {};
           Object.assign(
