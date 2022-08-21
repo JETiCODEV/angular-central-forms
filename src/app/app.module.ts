@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { LobCommonRoutingModule } from '../lob-common/lob-common.routing.module';
 import { RouterModule } from '@angular/router';
+import { StoreModule } from '@ngrx/store';
 
 @NgModule({
   imports: [
@@ -20,6 +21,7 @@ import { RouterModule } from '@angular/router';
       },
     ]),
     LobCommonRoutingModule,
+    StoreModule.forRoot({}, {}),
   ],
   declarations: [AppComponent],
   bootstrap: [AppComponent],
