@@ -5,7 +5,7 @@ import { materializeBaseForm } from "src/lob-common/helpers";
 import { CommonState } from "src/lob-common/state/common/common.reducer";
 import { PropertyDeal } from "../../lob-common/models";
 import { DealLoaderService } from "../../lob-common/services/deal-loader.service";
-import { BaseForms, FormService } from "../../lob-common/services/form.service";
+import { BaseForms, FormGroupRawValue, FormService } from "../../lob-common/services/form.service";
 
 export interface PropertyDealForm {
   propertyName: FormControl<string>;
