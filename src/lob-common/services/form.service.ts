@@ -1,13 +1,18 @@
-import { Injectable } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
-import { DealLoaderService } from "./deal-loader.service";
-import { take, map, filter, share, debounceTime } from "rxjs/operators";
-import { BehaviorSubject, Observable, merge } from "rxjs";
-import { switchMap, startWith, skip, tap } from "rxjs/operators";
-import { Deal, DealForm } from "../models";
-import { CommonState } from "../state/common/common.reducer";
 import { Store } from "@ngrx/store";
+import { BehaviorSubject, merge, Observable } from "rxjs";
+import {
+  debounceTime,
+  filter,
+  map,
+  share,
+  switchMap,
+  take,
+} from "rxjs/operators";
+import { Deal, DealForm } from "../models";
 import * as commonActions from "../state/common/common.actions";
+import { CommonState } from "../state/common/common.reducer";
+import { DealLoaderService } from "./deal-loader.service";
 
 export interface BaseForms {
   base: FormGroup<DealForm>;
@@ -35,13 +40,7 @@ export abstract class FormService<T extends BaseForms, TDeal extends Deal> {
         ...valueChanges.map(([, value]) => value.valueChanges)
       );
 
-      // const isAllValid = () =>
-      //   valueChanges
-      //     .map(([key, value]) => value.valid)
-      //     .reduce((previous, current) => previous && current, true);
-
       stream = stream.pipe(
-        // filter(() => isAllValid()),
         map(() => {
           const output = {};
           Object.assign(
