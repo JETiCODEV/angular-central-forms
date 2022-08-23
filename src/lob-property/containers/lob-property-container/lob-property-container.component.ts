@@ -57,7 +57,6 @@ export class LobPropertyContainerComponent implements OnDestroy {
 
   public reloadDeal() {
     this.dealLoaderService.loadDeal(Guid.newGuid());
-    this.formService.initializeForm();
   }
 
   public ngOnDestroy() {

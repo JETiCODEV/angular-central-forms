@@ -1,5 +1,5 @@
 <p>Perils covered</p>
-<ng-container *ngIf="perilsCovered | async; let covers">
+<div *ngIf="perilsCovered | async; let covers" [appFormPropertyPath]="covers">
   <div *ngFor="let cover of covers.controls">
     {{ cover.value }}
     <input
@@ -8,4 +8,4 @@
       (change)="togglePeril(cover.value)"      
     /><br />
   </div>
-</ng-container>
+</div>
