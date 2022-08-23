@@ -1,7 +1,8 @@
-import { AbstractControl, FormControl, FormGroup, } from "@angular/forms";
+import { Injectable, OnDestroy } from "@angular/core";
+import { FormControl, FormGroup, } from "@angular/forms";
 import { Actions, ofType } from "@ngrx/effects";
 import { Store } from "@ngrx/store";
-import { BehaviorSubject, merge, Observable } from "rxjs";
+import { BehaviorSubject, merge, Observable, Subject, takeUntil } from "rxjs";
 import { debounceTime, filter, map, share, switchMap, take } from "rxjs/operators";
 import { Deal, DealForm } from "../models";
 import * as commonActions from "../state/common/common.actions";
@@ -18,9 +19,11 @@ export interface BaseForms {
 // **NOTE** We should NOT create an instance of this service since it's abstract.
 //
 
-export abstract class FormService<T extends BaseForms, TDeal extends Deal> {
+@Injectable()
+export abstract class FormService<T extends BaseForms, TDeal extends Deal> implements OnDestroy {
     public forms: Readonly<T> | null = null;
     private readonly _forms$ = new BehaviorSubject<T | null>(this.forms);
+    private readonly destroy = new Subject<void>();
     public readonly forms$ = this._forms$.asObservable();
     public readonly formChanges: Observable<FormGroupRawValue<T>> =
         this.forms$.pipe(
@@ -57,12 +60,14 @@ export abstract class FormService<T extends BaseForms, TDeal extends Deal> {
         this._forms$
             .pipe(
                 switchMap(() => this.formChanges),
-                debounceTime(200)
+                debounceTime(200),
+                takeUntil(this.destroy)
             )
             .subscribe(() => this.saveDealUpdate());
 
         this.actions.pipe(
-            ofType(commonActions.dealActions.dealSuccess)
+            ofType(commonActions.dealActions.dealSuccess),
+            takeUntil(this.destroy)
         )
             .subscribe(() => this.initializeForm());
     }
@@ -99,6 +104,11 @@ export abstract class FormService<T extends BaseForms, TDeal extends Deal> {
                 deal: materializedDeal,
             })
         );
+    }
+
+    public ngOnDestroy() {
+        this.destroy.next();
+        this.destroy.complete();
     }
 
     abstract materializeDeal(): Readonly<TDeal>;

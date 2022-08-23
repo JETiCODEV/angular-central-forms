@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
 import { FormArray, FormControl, FormGroup, Validators, } from "@angular/forms";
 import { Actions } from "@ngrx/effects";
 import { Store } from "@ngrx/store";
@@ -24,16 +24,14 @@ export interface PropertyForms extends BaseForms {
     perilsCovered: FormArray<FormControl<string>>;
 }
 
-@Injectable({
-    providedIn: "root",
-})
-export class PropertyFormService extends FormService<PropertyForms,
-    PropertyDeal> {
+@Injectable()
+export class PropertyFormService extends FormService<PropertyForms, PropertyDeal> {
     public readonly diff = this.store
         .select((x) => x.common.deal as PropertyDeal)
         .pipe(
             filter((deal) => !!deal),
             switchMap((deal) => merge(this.forms$, this.formChanges).pipe(map(() => deal))),
+            filter(() => !!this.forms),
             map(
                 (deal) =>
                     ({
