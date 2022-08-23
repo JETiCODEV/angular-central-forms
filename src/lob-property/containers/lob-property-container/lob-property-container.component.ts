@@ -1,12 +1,8 @@
-import { Component, Inject, Injector, OnDestroy, ViewContainerRef } from "@angular/core";
+import { Component, Injector, OnDestroy, ViewContainerRef } from "@angular/core";
 import { BehaviorSubject, Observable, takeUntil } from "rxjs";
-import { DealLoaderService } from "../../../lob-common/services/deal-loader.service";
-import {
-    PropertyForms,
-    PropertyFormService,
-} from "../../services/property-form.service";
-import { DynamicComponentService } from "../../../lob-shared/services/dynamic-component.service";
 import { HeaderContainerComponent } from "src/lob-shared/containers/header-container/header-container.component";
+import { DealLoaderService } from "../../../lob-common/services/deal-loader.service";
+import { PropertyForms, PropertyFormService, } from "../../services/property-form.service";
 import { PerilsCoveredContainerComponent } from "../perils-covered-container/perils-covered-container.component";
 
 class Guid {
