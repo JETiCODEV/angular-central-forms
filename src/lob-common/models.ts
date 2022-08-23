@@ -8,6 +8,7 @@ export interface Deal {
 export interface PropertyDeal extends Deal {
   readonly propertyName: string;
   readonly perilsCovered: ReadonlyArray<string>;
+  readonly other: string;
 }
 
 export interface DealForm {

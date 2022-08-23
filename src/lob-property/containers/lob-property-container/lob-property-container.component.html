@@ -5,8 +5,12 @@
   </ng-container>
 
   <ng-container [formGroup]="forms.property">
-    Property Name: <input formControlName="propertyName" /> </ng-container
-  ><br />
+    Property Name: <input formControlName="propertyName" appFormPropertyPath />
+    <ng-container formGroupName="identity">
+      <input formControlName="name" appFormPropertyPath />
+    </ng-container>
+  </ng-container>
+  <br />
 
   <input [formControl]="forms.other" />
 

@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
-import { createFeature, Store } from "@ngrx/store";
-import { tap, map } from "rxjs/operators";
+import { map } from "rxjs/operators";
 import { PropertyDeal } from "src/lob-common/models";
 import * as commonActions from "../common/common.actions";
 
@@ -9,10 +8,7 @@ import * as commonActions from "../common/common.actions";
   providedIn: "root",
 })
 export class CommonEffects {
-  constructor(
-    private readonly store: Store,
-    private readonly actions: Actions
-  ) {
+  constructor(private readonly actions: Actions) {
     console.log("CommonEffects");
   }
 
@@ -25,7 +21,8 @@ export class CommonEffects {
             id: "id",
             reference: "reference",
             propertyName: "Property name",
-            perilsCovered: ["flood", "eq"],
+            perilsCovered: ["flood", "eq", "test", "bleah"],
+            other: "other",
           } as PropertyDeal,
         })
       )

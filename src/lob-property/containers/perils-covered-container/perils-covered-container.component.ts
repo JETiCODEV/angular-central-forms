@@ -1,8 +1,7 @@
 import { Component } from "@angular/core";
-import { FormArray, FormControl, ɵFormGroupRawValue } from "@angular/forms";
+import { FormArray, FormControl } from "@angular/forms";
 import { Observable } from "rxjs";
-import { map, tap } from "rxjs/operators";
-import { BaseForms } from "src/lob-common/services/form.service";
+import { map } from "rxjs/operators";
 import { PropertyFormService } from "src/lob-property/services/property-form.service";
 
 @Component({
@@ -14,8 +13,7 @@ export class PerilsCoveredContainerComponent {
   public readonly perilsCovered: Observable<FormArray<FormControl<string>>>;
   constructor(private readonly formService: PropertyFormService) {
     this.perilsCovered = this.formService.forms$.pipe(
-      map((form) => form.perilsCovered),
-      tap((result) => console.log(result.value))
+      map((form) => form.perilsCovered)
     );
   }
 

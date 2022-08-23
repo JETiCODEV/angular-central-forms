@@ -1,3 +1,9 @@
+import {
+  AbstractControl,
+  FormArray,
+  FormControl,
+  FormGroup,
+} from "@angular/forms";
 import { Deal } from "./models";
 import { BaseForms } from "./services/form.service";
 
@@ -10,7 +16,7 @@ export const materializeBaseForm = (
 
 export const areAllFormsValid = (baseForms: Readonly<BaseForms>) =>
   Object.entries(baseForms)
-    .map(([key, value]) => value.valid)
+    .map(([_key, value]) => value.valid)
     .reduce((previous, current) => previous && current, true);
 
 export const deepDiffMapper = (function () {
@@ -19,7 +25,7 @@ export const deepDiffMapper = (function () {
     VALUE_UPDATED: "updated",
     VALUE_DELETED: "deleted",
     VALUE_UNCHANGED: "unchanged",
-    map: function (obj1, obj2) {
+    map: function (obj1, obj2: FormGroup | FormControl | FormArray) {
       if (this.isFunction(obj1) || this.isFunction(obj2)) {
         throw "Invalid argument. Function given, object expected.";
       }
@@ -27,6 +33,7 @@ export const deepDiffMapper = (function () {
         return {
           type: this.compareValues(obj1, obj2),
           data: obj1 === undefined ? obj2 : obj1,
+          form: obj2,
         };
       }
 
@@ -37,13 +44,11 @@ export const deepDiffMapper = (function () {
         }
 
         var value2 = undefined;
-        if (obj2[key] !== undefined) {
-          value2 = obj2[key];
-        }
+        value2 = (obj2 as FormGroup).controls[key];
 
         diff[key] = this.map(obj1[key], value2);
       }
-      for (var key in obj2) {
+      for (var key in (obj2 as FormGroup).controls) {
         if (this.isFunction(obj2[key]) || diff[key] !== undefined) {
           continue;
         }
@@ -53,21 +58,24 @@ export const deepDiffMapper = (function () {
 
       return diff;
     },
-    compareValues: function (value1, value2) {
-      if (value1 === value2) {
+    compareValues: function (
+      value1,
+      value2: FormGroup | FormControl | FormArray
+    ) {
+      if (value1 === value2.value) {
         return this.VALUE_UNCHANGED;
       }
       if (
         this.isDate(value1) &&
-        this.isDate(value2) &&
-        value1.getTime() === value2.getTime()
+        this.isDate(value2.value) &&
+        value1.getTime() === value2.value.getTime()
       ) {
         return this.VALUE_UNCHANGED;
       }
       if (value1 === undefined) {
         return this.VALUE_CREATED;
       }
-      if (value2 === undefined) {
+      if (value2.value === undefined) {
         return this.VALUE_DELETED;
       }
       return this.VALUE_UPDATED;

@@ -8,6 +8,7 @@ import { LobCommonRoutingModule } from '../lob-common/lob-common.routing.module'
 import { RouterModule } from '@angular/router';
 import { createReducer, StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 export const appReducer = createReducer({});
 
@@ -32,6 +33,7 @@ export const appReducer = createReducer({});
     ]),
     LobCommonRoutingModule,
     EffectsModule.forRoot([]),
+    BrowserAnimationsModule,
   ],
   declarations: [AppComponent],
   bootstrap: [AppComponent],

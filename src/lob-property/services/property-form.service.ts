@@ -1,7 +1,13 @@
 import { Injectable } from "@angular/core";
-import { FormArray, FormControl, FormGroup, Validators } from "@angular/forms";
+import {
+  AbstractControl,
+  FormArray,
+  FormControl,
+  FormGroup,
+  Validators,
+} from "@angular/forms";
 import { Store } from "@ngrx/store";
-import { filter, switchMap, map } from "rxjs/operators";
+import { filter, switchMap, map, tap } from "rxjs/operators";
 import { deepDiffMapper, materializeBaseForm } from "src/lob-common/helpers";
 import { CommonState } from "src/lob-common/state/common/common.reducer";
 import { PropertyDeal } from "../../lob-common/models";
@@ -14,10 +20,9 @@ import {
 
 export interface PropertyDealForm {
   propertyName: FormControl<string>;
-}
-
-export interface PropertyDealForm {
-  propertyName: FormControl<string>;
+  identity: FormGroup<{
+    name: FormControl<string>;
+  }>;
 }
 
 export interface PropertyForms extends BaseForms {
@@ -33,40 +38,44 @@ export class PropertyFormService extends FormService<
   PropertyForms,
   PropertyDeal
 > {
+  public readonly diff = this.store
+    .select((x) => x.common.deal as PropertyDeal)
+    .pipe(
+      filter((deal) => !!deal),
+      switchMap((deal) => this.formChanges.pipe(map(() => deal))),
+      map(
+        (deal) =>
+          ({
+            base: {
+              id: deal.id,
+              reference: deal.reference,
+            },
+            other: deal.other,
+            perilsCovered: deal.perilsCovered as string[],
+            property: {
+              propertyName: deal.propertyName,
+              identity: {
+                name: "",
+              },
+            },
+          } as FormGroupRawValue<PropertyForms>)
+      ),
+      map((toDeal) => {
+        const output: Array<{}> = [];
+        Object.entries(this.forms).forEach(
+          ([key, value]) =>
+            (output[key] = deepDiffMapper.map(toDeal[key], value))
+        );
+
+        return output;
+      })
+    );
+
   constructor(dealLoaderService: DealLoaderService, store: Store<CommonState>) {
     super(dealLoaderService, store);
     console.log("PropertyFormService");
 
-    this.store
-      .select((x) => x.common.deal as PropertyDeal)
-      .pipe(
-        filter((deal) => !!deal),
-        switchMap((deal) => this.formChanges.pipe(map(() => deal)))
-      )
-      .subscribe((deal) => {
-        const toDeal: FormGroupRawValue<PropertyForms> = {
-          base: {
-            id: deal.id,
-            reference: deal.reference,
-          },
-          other: 'other',
-          perilsCovered: deal.perilsCovered as string[],
-          property: {
-            propertyName: deal.propertyName
-          }
-        };
-
-        console.log(
-          "Differ",
-          deepDiffMapper.map(toDeal, {
-            base: this.forms?.base?.value,
-            other: this.forms?.other?.value,
-            perilsCovered: this.forms?.perilsCovered?.value,
-            property: this.forms?.property?.value
-
-          } as FormGroupRawValue<PropertyForms>)
-        );
-      });
+    this.diff.subscribe(console.log);
   }
 
   public togglePeril(peril: string) {
@@ -80,9 +89,15 @@ export class PropertyFormService extends FormService<
   initForm(baseForms: Readonly<PropertyForms>, deal: Readonly<PropertyDeal>) {
     return {
       property: new FormGroup<PropertyDealForm>({
-        propertyName: new FormControl<string>(deal.propertyName, Validators.required),
+        propertyName: new FormControl<string>(
+          deal.propertyName,
+          Validators.required
+        ),
+        identity: new FormGroup({
+          name: new FormControl<string>(""),
+        }),
       }),
-      other: new FormControl(null),
+      other: new FormControl(deal.other),
       perilsCovered: new FormArray<FormControl<string>>(
         deal.perilsCovered.map((peril) => new FormControl<string>(peril))
       ),
@@ -94,6 +109,7 @@ export class PropertyFormService extends FormService<
       ...materializeBaseForm(this.forms),
       propertyName: this.forms.property.value.propertyName,
       perilsCovered: this.forms.perilsCovered.value,
+      other: this.forms.other.value,
     };
   }
 }

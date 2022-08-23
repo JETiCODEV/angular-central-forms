@@ -1,6 +1,11 @@
 <p>Perils covered</p>
 <ng-container *ngIf="perilsCovered | async; let covers">
-    <ng-container *ngFor="let cover of covers.controls">
-        {{ cover.value }} <input type="checkbox" [checked]="cover.value" (change)="togglePeril(cover.value)"><br/>
-    </ng-container>
+  <div *ngFor="let cover of covers.controls">
+    {{ cover.value }}
+    <input
+      type="checkbox"
+      [checked]="cover.value"
+      (change)="togglePeril(cover.value)"      
+    /><br />
+  </div>
 </ng-container>

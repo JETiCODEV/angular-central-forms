@@ -19,7 +19,6 @@ import { Deal, DealForm } from "../models";
 import * as commonActions from "../state/common/common.actions";
 import { CommonState } from "../state/common/common.reducer";
 import { DealLoaderService } from "./deal-loader.service";
-import { deepDiffMapper } from "../helpers";
 
 export interface BaseForms {
   base: FormGroup<DealForm>;
@@ -97,8 +96,6 @@ export abstract class FormService<T extends BaseForms, TDeal extends Deal> {
         debounceTime(200)
       )
       .subscribe(() => this.saveDealUpdate());
-
-    this.diff();
   }
 
   public initializeForm() {
@@ -123,30 +120,6 @@ export abstract class FormService<T extends BaseForms, TDeal extends Deal> {
       }
       this._forms$.next(this.forms);
     });
-  }
-
-  public diff() {
-    // TODO: We need to integrate this with the LoB specific forms too !!!!
-    // this.store
-    //   .select((x) => x.common.deal)
-    //   .pipe(
-    //     filter(deal => !!deal),
-    //     switchMap(deal => this.formChanges.pipe(map(() => deal)))
-    //   )
-    //   .subscribe((deal) => {
-    //     const toDeal: FormGroupRawValue<BaseForms> = {
-    //       base: {
-    //         id: deal.id,
-    //         reference: deal.reference,
-    //       },
-    //     };
-
-    //     console.log("Differ",
-    //       deepDiffMapper.map(toDeal, {
-    //         base: this.forms?.base?.value,
-    //       })
-    //     );
-    //   });
   }
 
   private saveDealUpdate() {
